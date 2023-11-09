@@ -1,0 +1,3 @@
+Xem mặt có phải chính giữa khung hình ko
+Xác định điểm chính giữa của mắt ( lỗ cho ánh sáng vào)
+Chia tỉ lệ với mắt và tỉ lệ
