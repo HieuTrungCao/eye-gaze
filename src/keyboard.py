@@ -49,9 +49,9 @@ for y, row in enumerate(key_board, 1):
         
 
 for key in keys:
-    key.drawKey(frame, text_color=(0,0,0), bg_color=(255,255,255),alpha=0.5, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, thickness=2)
-    
-cv2.moveWindow('keyboard', 0, 0)
+    frame = key.drawKey(frame, text_color=(0,0,0), bg_color=(255,255,255),alpha=0.5, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, thickness=2)
+
+# cv2.moveWindow('keyboard', 0, 0)
 cv2.imshow('keyboard', frame)
 key = cv2.waitKey(0)
 # Destroy all windows
