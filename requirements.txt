@@ -1,8 +1,8 @@
-mediapipe==0.8.7.3
-numpy==1.19.5
-opencv_python==4.5.2.52
+mediapipe
+numpy==1.23.3
+opencv_python==4.8.1.78
 pynput==1.7.5
-pillow==1.2.2
+pillow==10.0.0
 playsound
 wikipedia
 webdriver_manager

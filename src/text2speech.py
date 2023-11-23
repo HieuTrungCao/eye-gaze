@@ -1,18 +1,21 @@
-import os
-import playsound
-import wikipedia
-from webdriver_manager.chrome import ChromeDriverManager
-from gtts import gTTS
+import pyttsx3
 
-wikipedia.set_lang('vi')
-language = 'vi'
-path = ChromeDriverManager().install()
+class Speak:
+    def __init__(self):
+        self.engine = pyttsx3.init()
+        self.setvoice()
+        
+    def setvoice(self):
+        id = 0
+        voices = self.engine.getProperty("voices")
+        for voice in voices:
+            if "an" in voice.name.lower():
+                break
+            else:
+                id += 1
 
-def speak(text):
-    print("Bot: {}".format(text))
-    tts = gTTS(text=text, lang=language, slow=False)
-    tts.save("sound.mp3")
-    playsound.playsound("sound.mp3", False)
-    os.remove("sound.mp3")
+        self.engine.setProperty("voice", voices[id].id)
 
-# speak("Tôi là cao trung hiếu")
+    def speak(self, text):
+        self.engine.say(text)
+        self.engine.runAndWait()
