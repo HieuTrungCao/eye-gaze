@@ -4,20 +4,21 @@ import numpy as np
 import pyautogui
 from pynput.keyboard import Controller
 from keys import Key
-from checkevent import getMousPos
+from gaze_tracking import GazeTracking
+import time
+
+gaze = GazeTracking()
 
 def getMousPos(event , x, y, flags, param):
     global clickedX, clickedY
     global mouseX, mouseY
     if event == cv2.EVENT_LBUTTONUP:
-        print(x,y)
         clickedX, clickedY = x, y
     if event == cv2.EVENT_MOUSEMOVE:
-    #     print(x,y)
         mouseX, mouseY = x, y
 
-screen_width, screen_height = pyautogui.size()
-frame = np.ones((screen_height, screen_width, 3), np.uint8)*255
+screen_width, screen_height = 720, 720
+# frame = np.ones((screen_height, screen_width, 3), np.uint8)*255
     
 key_board = [["n", "h", "t", "i", 'c'], ["g", "a", "d", "m",'u'], ["ô", "à", "o", "y", 'l'], ["r", "k", "v", "b", 'ư'], ["s", "ó", "Đổi", "Space", 'Enter']]
 
@@ -54,8 +55,8 @@ for y, row in enumerate(key_board, 1):
         
         x += 1
         
-for key in keys:
-    key.drawKey(frame, text_color=(0,0,0), bg_color=(255,255,255),alpha=0.5, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, thickness=2)
+# for key in keys:
+#     key.drawKey(frame, text_color=(0,0,0), bg_color=(255,255,255),alpha=0.5, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, thickness=2)
     
 cap = cv2.VideoCapture(0)
 
@@ -67,13 +68,26 @@ previousClick = 0
 keyboard = Controller()
 
 while True:
-    textBox.drawKey(frame, (255,255,255), (0,0,0), 0.3)
+    _, frame = cap.read()
+    scale = max(screen_width/frame.shape[1], screen_height/frame.shape[0])
+    resized_frame = cv2.resize(frame, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
+    textBox.drawKey(resized_frame, (255,255,255), (0,0,0), 0.3)
+    gaze.refresh(resized_frame)
+    left_pupil, right_pupil = gaze.pupil_left_coords(), gaze.pupil_right_coords()
+
+    if left_pupil is not None and right_pupil is not None:
+        mouseX = int((left_pupil[0] + right_pupil[0])/2)
+        mouseY = int((left_pupil[1] + right_pupil[1])/2)
+        pyautogui.moveTo(mouseX, mouseY)
+        
     cv2.setMouseCallback('keyboard', getMousPos)
+    
     for k in keys:
         alpha = 0.5
         if k.isOver(mouseX, mouseY):
             alpha = 0.1
-            if k.isOver(clickedX, clickedY):                            
+            clickTime = time.time()
+            if clickTime - previousClick > 2:                              
                 if k.text == '<--':
                     textBox.text = textBox.text[:-1]
                 elif k.text == 'clr':
@@ -83,8 +97,8 @@ while True:
                         textBox.text += " "
                     else:
                         textBox.text += k.text
-                        
-            # writing using fingers
+                previousClick = clickTime
+                    
             # if (k.isOver(thumbTipX, thumbTipY)):
             #     clickTime = time.time()
             #     if clickTime - previousClick > 0.4:                               
@@ -100,15 +114,15 @@ while True:
             #                 #simulating the press of actuall keyboard
             #                 keyboard.press(k.text)
             #         previousClick = clickTime
-        k.drawKey(frame,(255,255,255), (0,0,0), alpha=alpha)
+        k.drawKey(resized_frame,(255,255,255), (0,0,0), alpha=alpha)
         alpha = 0.5
     clickedX, clickedY = 0, 0 
     
-    cv2.imshow('keyboard', frame)
+    
+    cv2.imshow('keyboard', resized_frame)
     ## stop the video when 'q' is pressed
     pressedKey = cv2.waitKey(1)
     if pressedKey == ord('q'):
         break
-# cv2.moveWindow('keyboard', 0, 0)
-# key = cv2.waitKey(0)
+    
 cv2.destroyAllWindows()         
