@@ -12,9 +12,8 @@ class Key():
         self.text=text
         self.text_size = 40
         self.font = ImageFont.truetype("font\\arial.ttf", self.text_size)
-
-    def drawKey(self, img, text_color=(0,0,0), bg_color=(0,0,0),alpha=0.5, fontFace=0, fontScale=0.8, thickness=2):
-        
+    
+    def drawKey(self, img, text_color=(0,0,0), bg_color=(0,0,0),alpha=0.5, fontFace=0, fontScale=0.8, thickness=2):        
         img = np.array(img)
         #draw the box
         bg_rec = img[self.y : self.y + self.h, self.x : self.x + self.w]

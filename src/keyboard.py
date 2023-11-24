@@ -2,22 +2,30 @@ import cv2
 import pyautogui
 import numpy as np
 import pyautogui
-
+from pynput.keyboard import Controller
 from keys import Key
+from gaze_tracking import GazeTracking
+import time
 
-screen_width, screen_height = pyautogui.size()
+gaze = GazeTracking()
 
-frame = np.ones((screen_height, screen_width, 3), np.uint8)*255  # creating a white background  
+def getMousPos(event , x, y, flags, param):
+    global clickedX, clickedY
+    global mouseX, mouseY
+    if event == cv2.EVENT_LBUTTONUP:
+        clickedX, clickedY = x, y
+    if event == cv2.EVENT_MOUSEMOVE:
+        mouseX, mouseY = x, y
 
-# cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-# cv2.setWindowProperty('image', cv2.WND_PROP_FULLSCREEN, cv2.WND_PROP_FULLSCREEN)
-
+screen_width, screen_height = 720, 720
+# frame = np.ones((screen_height, screen_width, 3), np.uint8)*255
+    
 key_board = [["n", "h", "t", "i", 'c'], ["g", "a", "d", "m",'u'], ["ô", "à", "o", "y", 'l'], ["r", "k", "v", "b", 'ư'], ["s", "ó", "Đổi", "Space", 'Enter']]
+
 n_rows = key_board.__len__() + 1
 d_rows = 10
 n_cols = key_board[0].__len__()
 d_cols = 10
-
 
 w_key = int((screen_width - (n_cols - 1) * d_cols) / n_cols)
 h_key = int((screen_height - (n_rows - 1) * d_rows) / n_rows)
@@ -27,9 +35,9 @@ y_start = int((screen_height - h_key*n_rows - d_rows*(n_rows - 1))/2)
        
 keys = []
 
-text = "text"
+textBox = Key(x_start, y_start, w_key * n_cols + d_cols * (n_cols - 1), h_key, '')
 
-keys.append(Key(x_start, y_start, w_key * n_cols + d_cols * (n_cols - 1), h_key, text))
+keys.append(textBox)
 
 for y, row in enumerate(key_board, 1):
 
@@ -47,12 +55,74 @@ for y, row in enumerate(key_board, 1):
         
         x += 1
         
+# for key in keys:
+#     key.drawKey(frame, text_color=(0,0,0), bg_color=(255,255,255),alpha=0.5, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, thickness=2)
+    
+cap = cv2.VideoCapture(0)
 
-for key in keys:
-    frame = key.drawKey(frame, text_color=(0,0,0), bg_color=(255,255,255),alpha=0.5, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, thickness=2)
+clickedX, clickedY = 0, 0
+mouseX, mouseY = 0, 0
 
-# cv2.moveWindow('keyboard', 0, 0)
-cv2.imshow('keyboard', frame)
-key = cv2.waitKey(0)
-# Destroy all windows
+previousClick = 0
+
+keyboard = Controller()
+
+while True:
+    _, frame = cap.read()
+    scale = max(screen_width/frame.shape[1], screen_height/frame.shape[0])
+    resized_frame = cv2.resize(frame, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
+    textBox.drawKey(resized_frame, (255,255,255), (0,0,0), 0.3)
+    gaze.refresh(resized_frame)
+    left_pupil, right_pupil = gaze.pupil_left_coords(), gaze.pupil_right_coords()
+
+    if left_pupil is not None and right_pupil is not None:
+        mouseX = int((left_pupil[0] + right_pupil[0])/2)
+        mouseY = int((left_pupil[1] + right_pupil[1])/2)
+        pyautogui.moveTo(mouseX, mouseY)
+        
+    cv2.setMouseCallback('keyboard', getMousPos)
+    
+    for k in keys:
+        alpha = 0.5
+        if k.isOver(mouseX, mouseY):
+            alpha = 0.1
+            clickTime = time.time()
+            if clickTime - previousClick > 2:                              
+                if k.text == '<--':
+                    textBox.text = textBox.text[:-1]
+                elif k.text == 'clr':
+                    textBox.text = ''
+                elif len(textBox.text) < 30:
+                    if k.text == 'Space':
+                        textBox.text += " "
+                    else:
+                        textBox.text += k.text
+                previousClick = clickTime
+                    
+            # if (k.isOver(thumbTipX, thumbTipY)):
+            #     clickTime = time.time()
+            #     if clickTime - previousClick > 0.4:                               
+            #         if k.text == '<--':
+            #             textBox.text = textBox.text[:-1]
+            #         elif k.text == 'clr':
+            #             textBox.text = ''
+            #         elif len(textBox.text) < 30:
+            #             if k.text == 'Space':
+            #                 textBox.text += " "
+            #             else:
+            #                 textBox.text += k.text
+            #                 #simulating the press of actuall keyboard
+            #                 keyboard.press(k.text)
+            #         previousClick = clickTime
+        k.drawKey(resized_frame,(255,255,255), (0,0,0), alpha=alpha)
+        alpha = 0.5
+    clickedX, clickedY = 0, 0 
+    
+    
+    cv2.imshow('keyboard', resized_frame)
+    ## stop the video when 'q' is pressed
+    pressedKey = cv2.waitKey(1)
+    if pressedKey == ord('q'):
+        break
+    
 cv2.destroyAllWindows()         
