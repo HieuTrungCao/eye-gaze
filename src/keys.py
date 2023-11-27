@@ -4,7 +4,7 @@ from PIL import ImageFont, ImageDraw, Image
 
 class Key():
 
-    def __init__(self,x,y,w,h,text):
+    def __init__(self,x,y,w,h,text,alpha=0.5):
         self.x = x
         self.y = y
         self.w = w
@@ -12,8 +12,10 @@ class Key():
         self.text=text
         self.text_size = 40
         self.font = ImageFont.truetype("font\\arial.ttf", self.text_size)
-    
-    def drawKey(self, img, text_color=(0,0,0), bg_color=(0,0,0),alpha=0.5, fontFace=0, fontScale=0.8, thickness=2):        
+        self.alpha = alpha
+        
+    def drawKey(self, img, text_color=(0,0,0), bg_color=(0,0,0),alpha=0.5, fontFace=0, fontScale=0.8, thickness=2):
+        
         img = np.array(img)
         #draw the box
         bg_rec = img[self.y : self.y + self.h, self.x : self.x + self.w]
@@ -39,6 +41,10 @@ class Key():
         return img
 
     def isOver(self,x,y):
-        if (self.x + self.w > x > self.x) and (self.y + self.h> y >self.y):
+        # if (self.x + self.w > x > self.x) and (self.y + self.h> y >self.y):
+        #     return True
+        # return False
+        if (self.x + self.w == (x+1) * self.w + x * 10) and (self.y + self.h == (y+1) * self.h + y * 10):
             return True
         return False
+    

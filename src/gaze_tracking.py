@@ -35,7 +35,7 @@ class GazeTracking(object):
             int(self.eye_right.pupil.y)
             return True
         except Exception:
-            print("locate Pupil False")
+            # print("locate Pupil False")
             return False
 
     def _analyze(self):
@@ -49,7 +49,7 @@ class GazeTracking(object):
             self.eye_right = Eye(frame, landmarks, 1, self.calibration)
 
         except IndexError:
-            print("Set eye false")
+            # print("Set eye false")
             self.eye_left = None
             self.eye_right = None
 
@@ -108,11 +108,11 @@ class GazeTracking(object):
 
     def is_up(self):
         if self.pupils_located:
-            return self.vertical_ratio() <= 0.35
+            return self.vertical_ratio() <= 0.1
 
     def is_down(self):
         if self.pupils_located:
-            return self.vertical_ratio() >= 0.35
+            return self.vertical_ratio() >= 0.9
         
     def is_center(self):
         """Returns true if the user is looking to the center"""
