@@ -4,3 +4,5 @@ opencv_python==4.8.1.78
 pynput==1.7.5
 pillow==10.0.0
 pyttsx3
+pyautogui
+dlib

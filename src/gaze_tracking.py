@@ -2,8 +2,8 @@ from __future__ import division
 import os
 import cv2
 import dlib
-from .eye import Eye
-from .calibration import Calibration
+from eye import Eye
+from calibration import Calibration
 
 
 class GazeTracking(object):
@@ -13,7 +13,7 @@ class GazeTracking(object):
     and pupils and allows to know if the eyes are open or closed
     """
 
-    def __init__(self):
+    def __init__(self, model_path):
         self.frame = None
         self.eye_left = None
         self.eye_right = None
@@ -23,8 +23,6 @@ class GazeTracking(object):
         self._face_detector = dlib.get_frontal_face_detector()
 
         # _predictor is used to get facial landmarks of a given face
-        cwd = os.path.abspath(os.path.dirname(__file__))
-        model_path = os.path.abspath(os.path.join(cwd, "trained_models/shape_predictor_68_face_landmarks.dat"))
         self._predictor = dlib.shape_predictor(model_path)
 
     @property
@@ -37,6 +35,7 @@ class GazeTracking(object):
             int(self.eye_right.pupil.y)
             return True
         except Exception:
+            # print("locate Pupil False")
             return False
 
     def _analyze(self):
@@ -50,6 +49,7 @@ class GazeTracking(object):
             self.eye_right = Eye(frame, landmarks, 1, self.calibration)
 
         except IndexError:
+            # print("Set eye false")
             self.eye_left = None
             self.eye_right = None
 
@@ -106,10 +106,18 @@ class GazeTracking(object):
         if self.pupils_located:
             return self.horizontal_ratio() >= 0.65
 
+    def is_up(self):
+        if self.pupils_located:
+            return self.vertical_ratio() <= 0.1
+
+    def is_down(self):
+        if self.pupils_located:
+            return self.vertical_ratio() >= 0.9
+        
     def is_center(self):
         """Returns true if the user is looking to the center"""
         if self.pupils_located:
-            return self.is_right() is not True and self.is_left() is not True
+            return self.is_right() is not True and self.is_left() is not True and not self.is_up() and not self.is_down()
 
     def is_blinking(self):
         """Returns true if the user closes his eyes"""
