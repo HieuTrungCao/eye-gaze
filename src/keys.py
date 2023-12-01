@@ -21,15 +21,15 @@ class Key():
         bg_rec = img[self.y : self.y + self.h, self.x : self.x + self.w]
         white_rect = np.ones(bg_rec.shape, dtype=np.uint8) #* 25
         white_rect[:] = bg_color
-        res = cv2.addWeighted(bg_rec, alpha, white_rect, 1-alpha, 1.0)
+        # res = cv2.addWeighted(bg_rec, alpha, white_rect, 1-alpha, 1.0)
         
         # Putting the image back to its position
-        img[self.y : self.y + self.h, self.x : self.x + self.w] = res
+        img[self.y : self.y + self.h, self.x : self.x + self.w] = white_rect
 
         #put the letter
         # tetx_size = cv2.getTextSize(self.text, fontFace, fontScale, thickness)
         text_size = [[self.text_size, self.text_size]]
-        text_pos = (int(self.x + self.w/2 - text_size[0][0]/2), int(self.y + self.h/2 - text_size[0][1]/2))
+        text_pos = (int(self.x + self.w/2 - text_size[0][0]*len(self.text)/2), int(self.y + self.h/2 - text_size[0][1]/2))
         
         pill_img = Image.fromarray(img)
         draw = ImageDraw.Draw(pill_img)

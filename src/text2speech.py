@@ -15,6 +15,7 @@ class Speak:
                 id += 1
 
         self.engine.setProperty("voice", voices[id].id)
+        self.engine.setProperty('rate', 100)
 
     def speak(self, text):
         self.engine.say(text)
