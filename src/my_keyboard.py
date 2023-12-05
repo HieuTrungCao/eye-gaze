@@ -8,6 +8,7 @@ from gaze_tracking import GazeTracking
 from text2speech import Speak
 import time
 import keyboard
+from detect_condinate import Condinate
 
 gaze = GazeTracking('model/shape_predictor_68_face_landmarks.dat')
 screen_width, screen_height = pyautogui.size()
@@ -102,7 +103,7 @@ keys_extend = {
     "u": set_key_board(extend_keyboad["u"])
 }  
 
-# cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0)
 prev_posX, prev_posY = 2, 3
 posX, posY = 2, 3
 previousClick = 0
@@ -118,11 +119,12 @@ cur = time.time()
 step = 1
 is_one = True
 is_extend = False
-
+choose_time = 1.8
 speaker = Speak()
 
+codinate = Condinate(screen_width, screen_height)
 while True:
-    # _, frame = cap.read()
+    _, frame = cap.read()
 
     textBox.drawKey(screen, (255,255,255), (0,0,0), 0.3)
     # gaze.refresh(frame)
@@ -147,17 +149,19 @@ while True:
             posX -= 1
             previousClick = time.time()
             prev = time.time()
-    elif keyboard.is_pressed("s") and posX < n_rows -1:
+    elif keyboard.is_pressed("s") and posX < n_rows -2:
         print('Down!')
         if time.time() - previousClick > ratio_time:
             posX += 1
             previousClick = time.time()
             prev = time.time()
 
+    x, y = codinate.detect_condinate(frame)
+    
     draw = False
     if temp_key.text == key.text:
         curr = time.time()
-        if curr - prev > 2 and step > 1:  
+        if curr - prev > choose_time and step > 1:  
                           
             if key.text == 'Nói':
                 speaker.speak(textBox.text)
@@ -203,14 +207,15 @@ while True:
             for i, k in enumerate(keys):
                 
                 if k != key:
-                    screen = k.drawKey(screen,(255,255,255), (192, 192, 192), alpha=0.5)
+                    screen = k.drawKey(screen,(255,255,255), (227, 227, 227), alpha=0.5)
             temp_key = key         
         
         if key.alpha != 0.8:
-            screen = key.drawKey(screen, (255,255,255), (255, 255, 255), alpha=0.8)
+            screen = key.drawKey(screen, (255,255,255), (173, 247, 182), alpha=0.8)
         draw = False
         prev_posX = posX
         prev_posY = posY
+    cv2.circle(screen, (x, y), 10, (0, 255, 0), 10)
     cv2.imshow('keyboard', screen)
 
     pressedKey = cv2.waitKey(1)
