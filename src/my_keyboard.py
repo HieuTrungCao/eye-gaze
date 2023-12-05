@@ -4,13 +4,11 @@ import numpy as np
 import pyautogui
 from pynput.keyboard import Controller
 from keys import Key
-from gaze_tracking import GazeTracking
 from text2speech import Speak
 import time
 import keyboard
-from detect_condinate import Condinate
+from detect_coordinate import Coordinate
 
-gaze = GazeTracking('model/shape_predictor_68_face_landmarks.dat')
 screen_width, screen_height = pyautogui.size()
     
 key_board_1 = np.array([["Xóa", "o", "y", "l", 'r'], 
@@ -122,12 +120,11 @@ is_extend = False
 choose_time = 1.8
 speaker = Speak()
 
-codinate = Condinate(screen_width, screen_height)
+codinate = Coordinate(screen_width, screen_height)
 while True:
     _, frame = cap.read()
 
     textBox.drawKey(screen, (255,255,255), (0,0,0), 0.3)
-    # gaze.refresh(frame)
     
     ratio_time = 0.3
     
@@ -176,6 +173,10 @@ while True:
                 else:
                     keys = keys_1
                     is_one = True
+                prev_posX = 2
+                posX = 2
+                prev_posY = 3
+                posY = 3
             elif key.text in keys_extend.keys() and not is_extend:
                 keys = keys_extend[key.text]
                 is_extend = True
@@ -192,6 +193,12 @@ while True:
                     keys = keys_1
                 else:
                     keys = keys_2
+
+                prev_posX = 2
+                posX = 2
+                prev_posY = 3
+                posY = 3
+                
             else:
                 textBox.text += key.text
                     
