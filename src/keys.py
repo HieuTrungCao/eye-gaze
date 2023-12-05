@@ -10,7 +10,7 @@ class Key():
         self.w = w
         self.h = h
         self.text=text
-        self.text_size = 40
+        self.text_size = 60
         self.font = ImageFont.truetype("font\\arial.ttf", self.text_size)
         self.alpha = alpha
         

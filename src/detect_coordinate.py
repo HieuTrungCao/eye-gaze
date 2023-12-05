@@ -3,7 +3,7 @@ import mediapipe as mp
 import numpy as np
 import dlib
 
-class Condinate:
+class Coordinate:
 
     def __init__(self, screen_w, screen_h):
         
@@ -93,6 +93,7 @@ class Condinate:
         
     def detect_condinate(self, frame):
         frame = cv2.flip(frame, 1)
+
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         output = self.face_mesh.process(rgb_frame)
         landmark_points = output.multi_face_landmarks
