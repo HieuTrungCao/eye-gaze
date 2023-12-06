@@ -119,7 +119,13 @@ is_one = True
 is_extend = False
 choose_time = 1.8
 speaker = Speak()
-screen = None
+
+for k in keys:
+    if k == key:
+        screen = k.drawKey(screen, (255,255,255), (173, 247, 182), alpha=0.8)
+    else :
+        screen = k.drawKey(screen,(255,255,255), (227, 227, 227), alpha=0.5)
+
 codinate = Coordinate(screen_width, screen_height)
 while True:
     _, frame = cap.read()
