@@ -48,3 +48,8 @@ class Key():
             return True
         return False
     
+    def is_contain(self, x, y):
+        if (self.x <= x and (self.x + self.w) >= x) and (self.y <= y and (self.y + self.h) >= y):
+            return True
+        return False
+    

@@ -126,6 +126,8 @@ class Coordinate:
             coe_left = self.cal_coe(center_left, pupil_left)
 
             x, y = self.intersection_point(coe_right, coe_left, center_left, center_right)
+            if x <= 0 or y <= 0:
+                return (1, 0)
             return (x, y)
         else:
             return (1, 0)
