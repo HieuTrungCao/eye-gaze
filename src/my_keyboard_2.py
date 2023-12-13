@@ -117,7 +117,7 @@ cur = time.time()
 step = 1
 is_one = True
 is_extend = False
-choose_time = 1.8
+choose_time = 1
 speaker = Speak()
 
 for k in keys:
@@ -131,16 +131,19 @@ while True:
     _, frame = cap.read()
 
     x, y = codinate.detect_condinate(frame)
+
+
+
     draw = False
-    print(x, y)
+
     for k in keys:
   
         if k.is_contain(x, y):
 
             key = k
             if k == temp_key:
-                if cur - prev >= choose_time:
-                    if k.text != "":
+                if time.time() - prev >= choose_time:
+                    if k.text != "" and k != textBox:
                         textBox.text += k.text
                     draw = True
                     cur = time.time()

@@ -97,7 +97,6 @@ class Coordinate:
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         output = self.face_mesh.process(rgb_frame)
         landmark_points = output.multi_face_landmarks
-        frame = cv2.resize(frame, None, fx=5, fy=5)
         frame_h, frame_w, _ = frame.shape
         if landmark_points:
             landmarks = landmark_points[0].landmark
@@ -107,20 +106,20 @@ class Coordinate:
 
             right_points = [(landmarks[id].x, landmarks[id].y) for id in right_eye]
             left_points = [(landmarks[id].x, landmarks[id].y) for id in left_eye]
-            # center_right = self.center(right_points[: -1])
-            # center_left = self.center(left_points[: -1])
-
-            # right_points.append(center_right)
-            # left_points.append(center_left)
 
             pupil_right = self.scale_point_to_frame([right_points[-1]], frame_w, frame_h)
             pupil_left = self.scale_point_to_frame([left_points[-1]], frame_w, frame_h)
             pupil_right = self.scale_point_to_screen(pupil_right, self.screen_w, self.screen_h, frame_w, frame_h)[0]
             pupil_left = self.scale_point_to_screen(pupil_left, self.screen_w, self.screen_h, frame_w, frame_h)[0]
             
-            center_left, center_right = self.compute_center(frame)
-            center_right = self.scale_point_to_screen([center_right], self.screen_w, self.screen_h, frame_w, frame_h)[0]
-            center_left = self.scale_point_to_screen([center_left], self.screen_w, self.screen_h, frame_w, frame_h)[0]
+            center_left = self.center(left_points[: -1])
+            center_right = self.center(right_points[: -1])
+            
+            center_left = self.scale_point_to_frame([center_left], frame_w, frame_h)
+            center_right = self.scale_point_to_frame([center_right], frame_w, frame_h)
+
+            center_right = self.scale_point_to_screen(center_right, self.screen_w, self.screen_h, frame_w, frame_h)[0]
+            center_left = self.scale_point_to_screen(center_left, self.screen_w, self.screen_h, frame_w, frame_h)[0]
 
             coe_right = self.cal_coe(center_right, pupil_right)
             coe_left = self.cal_coe(center_left, pupil_left)
